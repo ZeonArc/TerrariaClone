@@ -8,7 +8,7 @@ int main() {
         game.run();
     }
     catch (const std::exception& e) {
-        std::cerr << "[FATAL] " << e.what() << "\n";
+        std::cerr << "[FATAL ERROR] " << e.what() << "\n";
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;

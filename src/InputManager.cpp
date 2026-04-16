@@ -10,28 +10,34 @@ void InputManager::init(GLFWwindow* window) {
     m_buttons.fill(false);
     m_buttonsPrev.fill(false);
 
-    glfwSetKeyCallback(window,         keyCallback);
+    // Register GLFW callbacks
+    glfwSetKeyCallback(window, keyCallback);
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
-    glfwSetCursorPosCallback(window,   cursorPosCallback);
-    glfwSetScrollCallback(window,      scrollCallback);
+    glfwSetCursorPosCallback(window, cursorPosCallback);
+    glfwSetScrollCallback(window, scrollCallback);
 }
 
 void InputManager::update() {
-    m_keysPrev    = m_keys;
+    // Snapshot the current state into the "previous" state
+    m_keysPrev = m_keys;
     m_buttonsPrev = m_buttons;
-    m_mouseDelta  = m_mousePos - m_mousePosPrev;
+
+    // Calculate how far the mouse moved this frame
+    m_mouseDelta = m_mousePos - m_mousePosPrev;
     m_mousePosPrev = m_mousePos;
-    m_scrollDelta  = m_scrollAcc;
-    m_scrollAcc    = 0.0f;
+
+    // Grab scroll wheel movement and reset the accumulator
+    m_scrollDelta = m_scrollAcc;
+    m_scrollAcc = 0.0f;
 }
 
-bool InputManager::isKeyDown(int key)     const { return m_keys[key]; }
-bool InputManager::isKeyPressed(int key)  const { return  m_keys[key] && !m_keysPrev[key]; }
-bool InputManager::isKeyReleased(int key) const { return !m_keys[key] &&  m_keysPrev[key]; }
+bool InputManager::isKeyDown(int key)      const { return m_keys[key]; }
+bool InputManager::isKeyPressed(int key)   const { return  m_keys[key] && !m_keysPrev[key]; }
+bool InputManager::isKeyReleased(int key)  const { return !m_keys[key] && m_keysPrev[key]; }
 
-bool InputManager::isMouseDown(int b)     const { return m_buttons[b]; }
-bool InputManager::isMousePressed(int b)  const { return  m_buttons[b] && !m_buttonsPrev[b]; }
-bool InputManager::isMouseReleased(int b) const { return !m_buttons[b] &&  m_buttonsPrev[b]; }
+bool InputManager::isMouseDown(int b)      const { return m_buttons[b]; }
+bool InputManager::isMousePressed(int b)   const { return  m_buttons[b] && !m_buttonsPrev[b]; }
+bool InputManager::isMouseReleased(int b)  const { return !m_buttons[b] && m_buttonsPrev[b]; }
 
 // ---------- static callbacks ----------
 
