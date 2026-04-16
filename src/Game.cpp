@@ -78,24 +78,52 @@ void Game::processInput() {
     // --- NEW: MINING (Left Click = 0/Air) ---
     if (m_input.isMouseDown(GLFW_MOUSE_BUTTON_LEFT)) {
         glm::vec2 mouse = m_input.getMousePos();
-
-        // Math: Screen Space -> World Space
         float worldX = mouse.x + (m_camera.getPosition().x - 1280.0f / 2.0f);
         float worldY = mouse.y + (m_camera.getPosition().y - 720.0f / 2.0f);
 
-        m_renderer.getWorld()->setTile((int)std::floor(worldX / 32.0f), (int)std::floor(worldY / 32.0f), 0);
-    }
+        int gridX = (int)std::floor(worldX / 32.0f);
+        int gridY = (int)std::floor(worldY / 32.0f);
 
+        // What block are we clicking on?
+        uint16_t targetedBlock = m_renderer.getWorld()->getTile(gridX, gridY);
+
+        if (targetedBlock != 0) {
+            // Give the item to the player!
+            if (m_player.inventory.addItem(targetedBlock, 1)) {
+                // If there was room in the inventory, destroy the block in the world
+                m_renderer.getWorld()->setTile(gridX, gridY, 0);
+            }
+        }
+    }
     // --- NEW: PLACING (Right Click = 4/Wood) ---
     if (m_input.isMouseDown(GLFW_MOUSE_BUTTON_RIGHT)) {
         glm::vec2 mouse = m_input.getMousePos();
-
-        // Math: Screen Space -> World Space
         float worldX = mouse.x + (m_camera.getPosition().x - 1280.0f / 2.0f);
         float worldY = mouse.y + (m_camera.getPosition().y - 720.0f / 2.0f);
 
-        m_renderer.getWorld()->setTile((int)std::floor(worldX / 32.0f), (int)std::floor(worldY / 32.0f), 4);
+        int gridX = (int)std::floor(worldX / 32.0f);
+        int gridY = (int)std::floor(worldY / 32.0f);
+
+        // Check if we are clicking on empty air
+        if (m_renderer.getWorld()->getTile(gridX, gridY) == 0) {
+
+            // Do we have an item selected in our hotbar?
+            uint16_t selectedBlock = m_player.inventory.getSelectedBlockID();
+
+            if (selectedBlock != 0) {
+                // Try to consume 1 item from the inventory
+                if (m_player.inventory.consumeSelectedItem()) {
+                    // Place it in the world!
+                    m_renderer.getWorld()->setTile(gridX, gridY, selectedBlock);
+                }
+            }
+        }
     }
+    // --- HOTBAR SELECTION (Number Keys 1-9) ---
+    if (m_input.isKeyPressed(GLFW_KEY_1)) m_player.inventory.setSelectedSlot(0);
+    if (m_input.isKeyPressed(GLFW_KEY_2)) m_player.inventory.setSelectedSlot(1);
+    if (m_input.isKeyPressed(GLFW_KEY_3)) m_player.inventory.setSelectedSlot(2);
+
 }
 
 void Game::update(float dt) {
@@ -112,7 +140,11 @@ void Game::render() {
     glClearColor(0.478f, 0.749f, 0.969f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    m_renderer.draw(m_camera, m_player); // <-- Pass the player here!
+    m_renderer.draw(m_camera, m_player);
+
+    // --- DRAW THE UI LAST ---
+    // (Assuming your window is exactly 1280x720)
+    m_renderer.drawUI(m_player.inventory, 1280, 720);
 }
 
 void Game::onResize(int w, int h) {

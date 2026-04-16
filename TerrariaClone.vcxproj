@@ -130,6 +130,7 @@
     <ClInclude Include="src\FastNoiseLite.h" />
     <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\InputManager.h" />
+    <ClInclude Include="src\Inventory.h" />
     <ClInclude Include="src\Player.h" />
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\Shader.h" />
@@ -146,6 +147,7 @@
     <ClCompile Include="src\Chunk.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\InputManager.cpp" />
+    <ClCompile Include="src\Inventory.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
@@ -159,6 +161,7 @@
   <ItemGroup>
     <None Include="shaders\tile.frag" />
     <None Include="shaders\tile.vert" />
+    <None Include="shaders\ui.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

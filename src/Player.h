@@ -2,11 +2,13 @@
 #include <glm/glm.hpp>
 #include "World.h"
 #include "InputManager.h"
+#include "Inventory.h"
 
 
 class Player {
 public:
     Player(glm::vec2 startPos);
+    Inventory inventory;
 
     void update(float dt, const InputManager& input, const World& world); // Update signature
     glm::vec2 getPosition() const { return m_position; }

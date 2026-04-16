@@ -54,6 +54,9 @@
     <ClInclude Include="src\FastNoiseLite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Inventory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="tileset.png">
@@ -100,12 +103,18 @@
     <ClCompile Include="src\TextureAtlas.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Inventory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\tile.frag">
       <Filter>shaders</Filter>
     </None>
     <None Include="shaders\tile.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\ui.frag">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>
