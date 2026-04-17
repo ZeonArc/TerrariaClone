@@ -123,27 +123,29 @@ void Game::processInput() {
     if (m_input.isKeyPressed(GLFW_KEY_1)) m_player.inventory.setSelectedSlot(0);
     if (m_input.isKeyPressed(GLFW_KEY_2)) m_player.inventory.setSelectedSlot(1);
     if (m_input.isKeyPressed(GLFW_KEY_3)) m_player.inventory.setSelectedSlot(2);
+    if(m_input.isKeyPressed(GLFW_KEY_4)) m_player.inventory.setSelectedSlot(3);
+    if (m_input.isKeyPressed(GLFW_KEY_5)) m_player.inventory.setSelectedSlot(4);
 
 }
 
 void Game::update(float dt) {
-    m_player.update(dt, m_input, *m_renderer.getWorld());
-
-    // Tell the world to dynamically generate/unload chunks around the player!
+    // 1. GENERATE THE WORLD FIRST
+    // So the chunks exist before the player tries to stand on them!
     m_renderer.getWorld()->update(m_player.getPosition());
 
+    // 2. UPDATE PLAYER PHYSICS SECOND
+    m_player.update(dt, m_input, *m_renderer.getWorld());
+
+    // 3. MOVE THE CAMERA LAST
     glm::vec2 playerCenter = m_player.getPosition() + (m_player.getSize() * 0.5f);
     m_camera.setPosition(playerCenter);
 }
  
 void Game::render() {
-    glClearColor(0.478f, 0.749f, 0.969f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Change to black!
     glClear(GL_COLOR_BUFFER_BIT);
 
     m_renderer.draw(m_camera, m_player);
-
-    // --- DRAW THE UI LAST ---
-    // (Assuming your window is exactly 1280x720)
     m_renderer.drawUI(m_player.inventory, 1280, 720);
 }
 

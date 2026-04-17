@@ -117,5 +117,11 @@
     <None Include="shaders\ui.frag">
       <Filter>shaders</Filter>
     </None>
+    <None Include="shaders\sky.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\sky.frag">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

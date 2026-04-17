@@ -14,8 +14,11 @@ void World::update(const glm::vec2& playerPos) {
         int targetX = playerChunkX + i;
 
         // If the chunk doesn't exist in our map, create it!
+        // If the chunk doesn't exist in our map, create it!
         if (m_chunks.find(targetX) == m_chunks.end()) {
             m_chunks[targetX] = std::make_unique<Chunk>(targetX, 0, m_seed);
+
+            // <-- IF THIS LINE IS MISSING, THE CHUNK REMAINS INVISIBLE UNTIL YOU CLICK! -->
             m_chunks[targetX]->generateMesh(m_atlas);
         }
     }

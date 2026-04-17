@@ -14,14 +14,16 @@ void Renderer::init() {
     m_shader = std::make_unique<Shader>("shaders/tile.vert", "shaders/tile.frag");
     m_uiShader = std::make_unique<Shader>("shaders/tile.vert", "shaders/ui.frag");
     m_texture = std::make_unique<Texture>("assets/tileset.png");
+    m_skyShader = std::make_unique<Shader>("shaders/sky.vert", "shaders/sky.frag");
     TextureAtlas atlas(m_texture->getWidth(), m_texture->getHeight(), 8, 8);// 8x8 grid
+
 
     // --- 1. Init Chunk ---
     m_world = std::make_unique<World>((int)std::time(nullptr), atlas);
 
     // --- 2. Init Player Graphic ---
     // Let's use a wooden plank (Column 10, Row 0 approx) as a placeholder player sprite
-    std::array<float, 8> uvs = atlas.getUVs(10, 0);
+    std::array<float, 8> uvs = atlas.getUVs(4, 2);
 
     // A simple 1x1 square. We will stretch it using the Model matrix.
     float playerVertices[] = {
@@ -34,6 +36,15 @@ void Renderer::init() {
         0.0f,  1.0f,   uvs[4], uvs[5]  // bottom left
     };
 
+    float skyVertices[] = {
+        -1.0f,  1.0f,  // Top Left
+        -1.0f, -1.0f,  // Bottom Left
+         1.0f,  1.0f,  // Top Right
+         1.0f, -1.0f   // Bottom Right
+    };
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glGenVertexArrays(1, &m_playerVAO);
     glGenBuffers(1, &m_playerVBO);
     glBindVertexArray(m_playerVAO);
@@ -57,24 +68,40 @@ void Renderer::init() {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
     glEnableVertexAttribArray(1);
     glBindVertexArray(0);
+
+    glGenVertexArrays(1, &m_skyVAO);
+    glGenBuffers(1, &m_skyVBO);
+    glBindVertexArray(m_skyVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_skyVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(skyVertices), skyVertices, GL_STATIC_DRAW);
+
+    // We only need 2 floats (X, Y) per vertex
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
 }
 
 void Renderer::draw(const Camera& camera, const Player& player) {
+
+    // --- 1. DRAW THE SKY ---
+    m_skyShader->use(); // GPU switches to Sky Math
+    m_skyShader->setFloat("cameraX", camera.getPosition().x);
+
+    glBindVertexArray(m_skyVAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
+
+    // --- 2. DRAW THE WORLD ---
     if (m_world) {
-        m_shader->use();
+        m_shader->use(); // <-- CRITICAL FIX: GPU switches back to Tile Math!
         m_texture->bind();
 
         m_shader->setMat4("projection", camera.getProjectionMatrix());
         m_shader->setMat4("view", camera.getViewMatrix());
 
-        // --- DRAW THE CHUNK ---
-        // The chunk already calculated its own world coordinates, so its Model matrix is just the Identity matrix (no change).
-        glm::mat4 identity = glm::mat4(1.0f);
-        m_shader->setMat4("model", identity);
         m_world->draw();
 
-        // --- DRAW THE PLAYER ---
-        // Calculate the player's exact bounding box using translation and scaling
+        // --- 3. DRAW THE PLAYER ---
         glm::mat4 playerModel = glm::mat4(1.0f);
         playerModel = glm::translate(playerModel, glm::vec3(player.getPosition(), 0.0f));
         playerModel = glm::scale(playerModel, glm::vec3(player.getSize(), 1.0f));
@@ -154,10 +181,11 @@ void Renderer::drawUI(const Inventory& inventory, int screenWidth, int screenHei
 
             // Map the Block ID to its image on the spritesheet
             int atlasCol = 0, atlasRow = 0;
-            if (slot.blockID == 1) { atlasCol = 4; atlasRow = 0; } // Grass
-            if (slot.blockID == 2) { atlasCol = 4; atlasRow = 2; } // Dirt
-            if (slot.blockID == 3) { atlasCol = 4; atlasRow = 12; } // Stone
-            if (slot.blockID == 4) { atlasCol = 10; atlasRow = 0; } // Wood
+            if (slot.blockID == 1) { atlasCol = 14; atlasRow = 0; } // Grass
+            if (slot.blockID == 2) { atlasCol = 12; atlasRow = 0; } // Dirt
+            if (slot.blockID == 3) { atlasCol = 12; atlasRow = 11; } // Stone
+            if (slot.blockID == 4) { atlasCol = 25; atlasRow = 31; } // Wood
+			if (slot.blockID == 5) { atlasCol = 26; atlasRow = 21; } // Leaf
 
             std::array<float, 8> itemUVs = atlas.getUVs(atlasCol, atlasRow);
 

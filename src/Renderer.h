@@ -22,6 +22,8 @@ private:
     std::unique_ptr<Texture> m_texture;
     std::unique_ptr<World> m_world;
     std::unique_ptr<Shader> m_uiShader;
+    std::unique_ptr<Shader> m_skyShader;
+    unsigned int m_skyVAO, m_skyVBO;
     unsigned int m_uiVAO, m_uiVBO;
     unsigned int m_playerVAO, m_playerVBO;
 };
